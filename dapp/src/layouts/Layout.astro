@@ -1,0 +1,231 @@
+﻿---
+import Navbar from "../components/layout/Navbar.astro";
+import Footer from "../components/layout/Footer.astro";
+import { ClientRouter } from "astro:transitions";
+import { SEO } from "astro-seo";
+
+import "../styles/global.css";
+
+interface Props {
+  title: string;
+  page: string;
+}
+
+const { title, page } = Astro.props;
+---
+
+<script>
+  import { Buffer } from "buffer";
+  import { mountModal } from "../utils/mountModal";
+
+  global.Buffer = Buffer;
+
+  const MODAL_CLASS = "fixed inset-0 z-[9999]";
+
+  document.addEventListener("astro:page-load", () => {
+    document.addEventListener("show-create-project-modal", async () => {
+      try {
+        await mountModal(
+          `project-modal-container ${MODAL_CLASS}`,
+          () => import("components/page/dashboard/CreateProjectModal.tsx"),
+          () => ({}),
+        );
+      } catch (e) {
+        console.error("Error opening modal:", e);
+      }
+    });
+
+    window.addEventListener("openJoinCommunity", async (event: Event) => {
+      try {
+        const address =
+          event && typeof event === "object" && "detail" in event
+            ? ((event as CustomEvent<{ address?: string }>).detail?.address ??
+              "")
+            : "";
+        await mountModal(
+          `join-modal-container ${MODAL_CLASS}`,
+          () => import("components/page/dashboard/JoinCommunityModal.tsx"),
+          () => ({ prefillAddress: address }),
+        );
+      } catch (e) {
+        console.error("Error opening join community modal:", e);
+      }
+    });
+
+    window.addEventListener("openProfileModal", async () => {
+      try {
+        const { loadedPublicKey } = await import("service/walletService");
+        const currentAddress = loadedPublicKey();
+        if (!currentAddress) return;
+
+        let memberData = null;
+        try {
+          const { getMember } = await import("service/ReadContractService");
+          memberData = await getMember(currentAddress);
+        } catch {
+          memberData = null;
+        }
+
+        await mountModal(
+          `profile-modal-container ${MODAL_CLASS}`,
+          () => import("components/page/dashboard/MemberProfileModal.tsx"),
+          () => ({ address: currentAddress, member: memberData }),
+        );
+      } catch (e) {
+        console.error("Error opening profile modal:", e);
+      }
+    });
+
+    if (
+      window.location.pathname === "/" &&
+      new URLSearchParams(window.location.search).get(
+        "openCreateProjectModal",
+      ) === "true"
+    ) {
+      sessionStorage.setItem("openCreateProjectModal", "true");
+    }
+
+    const checkTermsAcceptance = async () => {
+      const path = window.location.pathname;
+      if (path === "/terms" || path === "/privacy") return;
+      try {
+        const accepted = localStorage.getItem("Sorowan_tos_accepted");
+        if (!accepted) {
+          await mountModal(
+            `terms-modal-container ${MODAL_CLASS}`,
+            () => import("components/utils/TermsAcceptanceModal.tsx"),
+            (onClose) => ({
+              onAccept: onClose,
+              onDecline: () => {
+                onClose();
+                window.location.href = "https://Sorowan.dev";
+              },
+            }),
+            { closeOnOverlayClick: false },
+          );
+        }
+      } catch (e) {
+        console.error("Error checking terms acceptance:", e);
+      }
+    };
+
+    checkTermsAcceptance();
+  });
+</script>
+
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+    <meta name="generator" content={Astro.generator} />
+
+    <!-- Critical resource hints -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+
+    <!-- Preload critical resources -->
+    <link rel="preload" as="image" href="/logo-background.png" />
+    <link rel="preload" as="image" href="/logo.svg" />
+
+    <!-- Load fonts with font-display swap for performance -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&display=swap"
+      rel="stylesheet"
+    />
+
+    <ClientRouter />
+
+    <SEO
+      title={title}
+      description="Bringing open source software development onto the Stellar blockchain. Sorowan enables decentralized project governance, transparent funding, and collaborative development on Stellar."
+      canonical={`https://app.Sorowan.dev${Astro.url.pathname}`}
+      openGraph={{
+        basic: {
+          title: title,
+          type: "website",
+          image: "https://app.Sorowan.dev/logo-background.png",
+          url: `https://app.Sorowan.dev${Astro.url.pathname}`,
+        },
+        optional: {
+          description:
+            "Bringing open source software development onto the Stellar blockchain. Sorowan enables decentralized project governance, transparent funding, and collaborative development on Stellar.",
+          siteName: "Sorowan",
+        },
+      }}
+      twitter={{
+        creator: "@PamphileRoy",
+        card: "summary_large_image",
+        image: "https://app.Sorowan.dev/logo-background.png",
+        title: title,
+        description:
+          "Bringing open source software development onto the Stellar blockchain",
+      }}
+      extend={{
+        // extending the default link tags
+        link: [
+          { rel: "icon", href: "/logo.svg" },
+          { rel: "apple-touch-icon", href: "/logo.svg" },
+          { rel: "manifest", href: "/manifest.json" },
+        ],
+        // extending the default meta tags
+        meta: [
+          { name: "author", content: "Sorowan Team" },
+          {
+            name: "keywords",
+            content:
+              "stellar, blockchain, open source, decentralized, governance, funding, collaboration",
+          },
+          { name: "theme-color", content: "#311255" },
+          { name: "application-name", content: "Sorowan" },
+        ],
+      }}
+    />
+
+    <!-- Structured Data for SEO -->
+    <script type="application/ld+json" is:inline>
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Sorowan",
+        "url": "https://app.Sorowan.dev",
+        "description": "Bringing open source software development onto the Stellar blockchain. Sorowan enables decentralized project governance, transparent funding, and collaborative development.",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "Web",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "creator": {
+          "@type": "Organization",
+          "name": "Sorowan Team"
+        }
+      }
+    </script>
+
+    <!-- Register service worker for caching (silent) -->
+    <script>
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker.register("/sw.js").catch(() => {});
+        });
+      }
+    </script>
+  </head>
+  <body class="font-firacode min-h-screen flex flex-col">
+    <img
+      src="/logo-background.png"
+      alt="Sorowan background decoration"
+      class="background-image hidden md:block"
+      loading="lazy"
+      decoding="async"
+      width="1200"
+      height="800"
+    />
+    <Navbar page={page} />
+    <slot />
+    <Footer />
+  </body>
+</html>

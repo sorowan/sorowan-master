@@ -1,0 +1,15 @@
+﻿---
+import Layout from "../layouts/Layout.astro";
+import Container from "../components/layout/Container.astro";
+import ProjectListWithBoundary from "../components/page/dashboard/ProjectListWithBoundary.tsx";
+---
+
+<!-- text-active text-rejected text-cancelled text-voted text-approved text-approve text-reject text-abstain -->
+<script is:inline>
+  var global = global || window;
+</script>
+<Layout title="Sorowan" page="home">
+  <Container>
+    <ProjectListWithBoundary client:load />
+  </Container>
+</Layout>

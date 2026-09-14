@@ -1,0 +1,11 @@
+﻿- id: Sorowan
+  name: Send hash to Sorowan contract before push
+  language: python
+  additional_dependencies:
+    - soroban
+  entry: Sorowan-pre-push
+  pass_filenames: false
+  always_run: true
+  require_serial: true
+  stages:
+    - pre-push

@@ -1,0 +1,44 @@
+# Soroban
+target
+contract/target
+contracts/sorowan/test_snapshots
+.stellar/identity
+.stellar/network
+mutants*
+
+# Misc
+.cursor
+.idea
+.DS_Store
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Python
+*.pyc
+.ipynb_checkpoints
+
+dist
+
+# website and dApp
+node_modules
+package-lock.json
+
+# Production
+build
+
+# Generated files
+.docusaurus
+.cache-loader
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Local Netlify folder
+.netlify
+
+# Storacha proof and keys
+.storacha
+encrypted_proof.bin.test

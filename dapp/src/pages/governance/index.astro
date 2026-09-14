@@ -1,0 +1,21 @@
+﻿---
+import GovernancePageTitle from "components/page/governance/GovernancePageTitle.astro";
+import CreateProposalModalWithBoundary from "components/page/proposal/CreateProposalModalWithBoundary";
+import Container from "../../components/layout/Container.astro";
+import GovernancePage from "../../components/page/governance/GovernancePage.astro";
+import Layout from "../../layouts/Layout.astro";
+---
+
+<script is:inline>
+  var global = global || window;
+</script>
+
+<Layout title="Sorowan" page="governance">
+  <Container>
+    <GovernancePageTitle />
+    <GovernancePage />
+    <CreateProposalModalWithBoundary client:load />
+  </Container>
+</Layout>
+
+<script></script>

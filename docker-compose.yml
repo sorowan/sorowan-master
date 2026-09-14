@@ -1,0 +1,27 @@
+﻿services:
+  db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: Sorowan_test
+      POSTGRES_PASSWORD: Sorowan_test
+      POSTGRES_DB: Sorowan_test
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "Sorowan_test", "-d", "Sorowan_test" ]
+      interval: 3s
+      timeout: 10s
+      retries: 5
+    ports:
+      - "5432:5432"
+
+  testnet:
+    image: stellar/quickstart:latest
+    command: [
+      "--local",
+      "--limits",
+      "testnet", # unlimited
+      "--enable-soroban-rpc",
+      "--enable-soroban-diagnostic-events",
+    ]
+    ports:
+      - "8000:8000"
